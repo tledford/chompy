@@ -1,0 +1,8 @@
+version: '3.3'
+services:
+    chompy:
+        container_name: chompy
+        build:
+            context: .
+            dockerfile: ./Dockerfile.dev
+        restart: "no"
