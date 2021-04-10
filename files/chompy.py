@@ -5,6 +5,7 @@ import time
 #import json
 
 notifyUrl = 'http://192.168.1.245:1880/chompy?vt={}&dt={}'
+exitUrl = 'http://192.168.1.245:1880/chomped?code={}'
 url = "https://mychart.montagehealth.org/mychart/OpenScheduling/OpenScheduling/GetScheduleDays?noCache=0.5941451357342415"
 
 headers = {
@@ -22,7 +23,11 @@ vts = {
 "1171009": "Janssen Standby"
 }
 
-while 1 :
+notifyCount = 0;
+
+requests.request("GET", exitUrl.format(58))
+
+while notifyCount < 50 :
     for vt, name in vts.items():
         print("Name: " + name)
         #print("vt: " + vt)
@@ -38,6 +43,7 @@ while 1 :
 
             response = requests.request("POST", url, headers=headers, data=payload)
             if(response.status_code != 200):
+                requests.request("GET", exitUrl.format(response.status_code))
                 sys.exit(response.status_code)
             #print(response)
             resp = response.json()
@@ -45,6 +51,7 @@ while 1 :
 
             if(resp.get("AllDays")):
                 print(" - Week of:" + fmtDt + ": Available!")
+                notifyCount += 1
                 requests.request("GET", notifyUrl.format(name, fmtDt))
             else:
                 print(" - Week of:" + fmtDt + ": None")
